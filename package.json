@@ -9,7 +9,9 @@
     "build": "rollup -c"
   },
   "dependencies": {
+    "@gltf-transform/core": "^4.0.8",
     "@pixiv/three-vrm": "^3.1.0",
+    "@pixiv/three-vrm-animation": "^3.1.0",
     "@react-three/drei": "^9.109.5",
     "@react-three/fiber": "^8.17.5",
     "react": "^18.3.1",

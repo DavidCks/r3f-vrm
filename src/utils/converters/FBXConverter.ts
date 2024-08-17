@@ -41,7 +41,7 @@ export class FBXConverter {
           }
         },
         (xhr) => {
-          onProgress("fbxLoader", xhr.loaded / xhr.total);
+          onProgress("fbxLoader - " + filePath, xhr.loaded / xhr.total);
         },
         (error) => {
           console.error("An error happened while loading the FBX file:", error);
@@ -54,8 +54,7 @@ export class FBXConverter {
   private convertFbxToMotion(
     object: Group<Object3DEventMap>,
     onProgress: (name: string, progress: number) => void = (_1, _2) => {}
-  ) {
-    let convert;
+  ): Promise<MotionExpression> | undefined {
     if (object.animations.length > 0) {
       switch (object.animations[0].name) {
         case "mixamo.com":

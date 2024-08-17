@@ -23,6 +23,9 @@ const VRMAvatarComponent: React.FC<VRMAvatarProps> = ({ vrmUrl, onLoad }) => {
 
   if (!avatarRef.current) {
     avatarRef.current = vrm.scene;
+    vrm.scene.traverse(function (obj) {
+      obj.frustumCulled = false;
+    });
     scene.add(vrm.scene as Group);
   }
 

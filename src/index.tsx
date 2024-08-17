@@ -2,7 +2,7 @@ import React from "react";
 import { Canvas } from "@react-three/fiber";
 import { VRMAvatar } from "./VRMAvatar";
 import VRMManager from "./utils/VRMManager";
-import { MotionExpressionManager } from "./utils/MotionExpressionManager";
+import { Grid, OrbitControls } from "@react-three/drei";
 
 export const VRMComponent: React.FC = () => {
   const handleLoad = async (vrmManager: VRMManager) => {
@@ -40,7 +40,7 @@ export const VRMComponent: React.FC = () => {
     ];
 
     const motionExpression =
-      await vrmManager.expressionManager.motion.fbx2motion("Idle.fbx");
+      await vrmManager.expressionManager.motion.bvh2motion("Warmup.bvh");
 
     // Repeat expressions by a factor of 10
     const repeatedFaceExpressions = repeatExpressions(faceExpressions, 10);
@@ -58,6 +58,7 @@ export const VRMComponent: React.FC = () => {
 
   return (
     <Canvas
+      camera={{ near: 0.01, far: 1000 }}
       style={{ height: "800px", width: "100%" }} // Set the height to 800px and width to 100%
     >
       <ambientLight intensity={0.5} />
@@ -65,6 +66,12 @@ export const VRMComponent: React.FC = () => {
 
       {/* Use "Ruri.vrm" as the path to your VRM file */}
       <VRMAvatar vrmUrl="Ruri.vrm" onLoad={handleLoad} />
+      <Grid
+        args={[10, 10]} // Size of the grid
+        rotation={[0, 0, 0]} // Rotate to lie on the XZ plane
+        position={[0, 0, 0]} // Position the grid at the origin
+      />
+      <OrbitControls />
     </Canvas>
   );
 };

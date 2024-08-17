@@ -5,7 +5,8 @@ export class FocusManager {
   private _camera: Camera;
   private _vrm: VRM;
   private _isFocused: boolean = false;
-  private _focusIntensity: number = 0.1; // Fixed focus intensity
+  private _focusIntensity: number = 0.05; // Fixed focus intensity
+  private _snapThreshold: number = 10; // Threshold for snapping to the target
 
   constructor(camera: Camera, vrm: VRM) {
     this._camera = camera;
@@ -31,13 +32,11 @@ export class FocusManager {
 
       const box = new Box3().setFromObject(this._vrm.scene);
       const size = box.getSize(new Vector3());
-      const distanceInFront = size.z * 2;
+      const distanceInFront = size.z * 2.5;
 
       // Calculate head direction (normal)
       const headDirection = new Vector3();
       head.getWorldDirection(headDirection);
-
-      // Normalize the headDirection to ensure correct scaling
       headDirection.normalize();
 
       // Calculate the target position directly in front of the face
@@ -61,6 +60,7 @@ export class FocusManager {
 
       // Interpolate the camera position for smooth transition
       this._camera.position.lerp(targetPosition, this._focusIntensity);
+
       // Make the camera look at the head
       this._camera.lookAt(headWorldPosition);
     }
