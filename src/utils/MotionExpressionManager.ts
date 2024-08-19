@@ -17,7 +17,8 @@ export class MotionExpressionManager {
   private fbxConverter: FBXConverter;
   private bvhConverter: BVHConverter;
   private vrmaConverter: VRMAConverter;
-  private initialPose: VRMPose | null = null;
+  private currentAnimationClip: THREE.AnimationClip | undefined;
+  private startNextTimer: Timer | undefined;
 
   constructor(vrm: VRM) {
     this.vrm = vrm;
@@ -49,86 +50,63 @@ export class MotionExpressionManager {
     return await this.vrmaConverter.vrma2motion(filePath, onProgress);
   }
 
-  storeInitialPose() {
-    this.initialPose = this.vrm.humanoid.getNormalizedPose();
+  applyExpressions(
+    expressions: MotionExpression[],
+    loop: THREE.AnimationActionLoopStyles = THREE.LoopOnce
+  ) {
+    if (this.startNextTimer) {
+      clearTimeout(this.startNextTimer);
+    }
+    this._applyExpressions(expressions, loop, 0.5, this.currentAnimationClip);
   }
 
   // Apply motion expressions (implementation left blank for now)
-  applyExpressions(expressions: MotionExpression[]) {
-    if (!this.initialPose) {
-      this.storeInitialPose();
+  private _applyExpressions(
+    expressions: MotionExpression[],
+    loop: THREE.AnimationActionLoopStyles = THREE.LoopOnce,
+    transitionDuration: number = 0.5,
+    previousClip: THREE.AnimationClip | null = null
+  ) {
+    const newExpression = expressions.shift();
+    if (!newExpression) {
+      return;
     }
-    const action = this.mixer.clipAction(expressions[0].clip);
-    action.clampWhenFinished = true;
-    action.loop = THREE.LoopOnce;
-    action.play();
+    this.currentAnimationClip = newExpression.clip;
+    const newAction = this.mixer.clipAction(newExpression.clip);
+    newAction.loop = THREE.LoopOnce;
+    newAction.clampWhenFinished = true;
 
-    // Listen for the end of the animation to trigger the blend back to the initial pose
-    action.getMixer().addEventListener("finished", () => {
-      this.blendToInitialPose();
-    });
-  }
-
-  // Blend back to the initial pose
-  // Blend back to the initial pose
-  blendToInitialPose() {
-    if (!this.initialPose) return;
-
-    // Create a keyframe track for each bone that will interpolate from the current pose back to the initial pose
-    const tracks = [];
-    const humanoid = this.vrm.humanoid;
-
-    for (const boneNameString in VRMHumanBoneName) {
-      const boneName = boneNameString as VRMHumanBoneName;
-      const bone = humanoid.getNormalizedBoneNode(boneName);
-      if (bone && this.initialPose?.[boneName]) {
-        const initialPosition = this.initialPose[boneName]?.position;
-        const initialQuaternion = this.initialPose[boneName]?.rotation;
-
-        if (initialPosition) {
-          tracks.push(
-            new THREE.VectorKeyframeTrack(
-              `${bone.name}.position`,
-              [0, 1], // Interpolate over 1 second
-              [
-                bone.position.x,
-                bone.position.y,
-                bone.position.z,
-                initialPosition[0],
-                initialPosition[1],
-                initialPosition[2],
-              ]
-            )
-          );
-        }
-
-        if (initialQuaternion) {
-          tracks.push(
-            new THREE.QuaternionKeyframeTrack(
-              `${bone.name}.quaternion`,
-              [0, 1], // Interpolate over 1 second
-              [
-                bone.quaternion.x,
-                bone.quaternion.y,
-                bone.quaternion.z,
-                bone.quaternion.w,
-                initialQuaternion[0],
-                initialQuaternion[1],
-                initialQuaternion[2],
-                initialQuaternion[3],
-              ]
-            )
-          );
-        }
+    if (previousClip) {
+      const previousAction = this.mixer.existingAction(previousClip);
+      if (previousAction) {
+        newAction.crossFadeFrom(previousAction, transitionDuration, true);
+        previousAction.crossFadeTo(newAction, transitionDuration, true);
+        setTimeout(() => {
+          previousAction.stop();
+        }, transitionDuration * 1000);
       }
     }
+    newAction.play();
 
-    const resetClip = new THREE.AnimationClip("reset", 1, tracks);
-    const resetAction = this.mixer.clipAction(resetClip);
-    resetAction.setLoop(THREE.LoopOnce, 1);
-    resetAction.timeScale = 1; // Adjust as needed for smoothness
-    resetAction.fadeIn(0.5); // Adjust the fade-in time for smoothness
-    resetAction.play();
+    const newTransitionDuration =
+      newExpression.clip.duration < 0.5 ? newExpression.clip.duration / 2 : 0.5;
+    this.startNextTimer = setTimeout(
+      () => {
+        if (expressions.length === 0) {
+          newAction.fadeOut(newTransitionDuration);
+          setTimeout(() => {
+            newAction.stop();
+          }, newTransitionDuration * 1000);
+        }
+        this._applyExpressions(
+          expressions,
+          loop,
+          newTransitionDuration,
+          this.currentAnimationClip
+        );
+      },
+      newExpression.clip.duration * 1000 - newTransitionDuration * 1000
+    );
   }
 
   processExpressions(delta: number) {

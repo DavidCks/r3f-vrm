@@ -5,7 +5,7 @@ export class FocusManager {
   private _camera: Camera;
   private _vrm: VRM;
   private _isFocused: boolean = false;
-  private _focusIntensity: number = 0.05; // Fixed focus intensity
+  private _baseFocusIntensity: number = 0.1; // Fixed focus intensity
   private _snapThreshold: number = 10; // Threshold for snapping to the target
 
   constructor(camera: Camera, vrm: VRM) {
@@ -58,8 +58,15 @@ export class FocusManager {
         (targetZ + this._camera.position.z * zMultiplier) / (zMultiplier + 1)
       );
 
+      // Calculate the total distance from the camera to the target position
+      const distanceToTarget = Math.sqrt(
+        xDistance * xDistance + yDistance * yDistance + zDistance * zDistance
+      );
+
+      const focusIntensity = this._baseFocusIntensity * (distanceToTarget + 1);
+
       // Interpolate the camera position for smooth transition
-      this._camera.position.lerp(targetPosition, this._focusIntensity);
+      this._camera.position.lerp(targetPosition, focusIntensity);
 
       // Make the camera look at the head
       this._camera.lookAt(headWorldPosition);
