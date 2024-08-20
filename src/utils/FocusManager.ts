@@ -5,8 +5,9 @@ export class FocusManager {
   private _camera: Camera;
   private _vrm: VRM;
   private _isFocused: boolean = false;
-  private _baseFocusIntensity: number = 0.1; // Fixed focus intensity
-  private _snapThreshold: number = 10; // Threshold for snapping to the target
+  private _cameraOffset: Vector3 = new Vector3(0, 0, 0); // Offset from the head
+  private _lookAtOffset: Vector3 = new Vector3(0, 0, 0); // Offset from the head
+  private _focusIntensity: number = 0.01; // Fixed focus intensity
 
   constructor(camera: Camera, vrm: VRM) {
     this._camera = camera;
@@ -21,7 +22,21 @@ export class FocusManager {
     this._isFocused = false;
   }
 
-  focus() {
+  focus(
+    focusProps: {
+      focusIntensity?: number;
+      cameraOffset?: Vector3;
+      lookAtOffset?: Vector3;
+    } = {
+      focusIntensity: this._focusIntensity ?? 0.01,
+      cameraOffset: this._cameraOffset ?? new Vector3(0, 0, 0),
+      lookAtOffset: this._lookAtOffset ?? new Vector3(0, 0, 0),
+    }
+  ) {
+    const { focusIntensity, cameraOffset, lookAtOffset } = focusProps;
+    this._focusIntensity = focusIntensity ?? 0.01;
+    this._cameraOffset = cameraOffset ?? new Vector3(0, 0, 0);
+    this._lookAtOffset = lookAtOffset ?? new Vector3(0, 0, 0);
     const head = this._vrm.humanoid.getNormalizedBoneNode(
       VRMHumanBoneName.Head
     );
@@ -30,19 +45,27 @@ export class FocusManager {
       const headWorldPosition = new Vector3();
       head.getWorldPosition(headWorldPosition);
 
-      const box = new Box3().setFromObject(this._vrm.scene);
-      const size = box.getSize(new Vector3());
-      const distanceInFront = size.z * 2.5;
-
       // Calculate head direction (normal)
       const headDirection = new Vector3();
       head.getWorldDirection(headDirection);
       headDirection.normalize();
 
+      const box = new Box3().setFromObject(this._vrm.scene);
+      const size = box.getSize(new Vector3());
+      const distanceInFront = size.z * 2.5;
+
+      const yFactor = 1 - Math.abs(headDirection.y) * 0.5; // Reduces zoom-in effect when looking down
+
       // Calculate the target position directly in front of the face
-      const targetX = headWorldPosition.x - headDirection.x * distanceInFront;
-      const targetY = headWorldPosition.y;
-      const targetZ = headWorldPosition.z - headDirection.z * distanceInFront;
+      const rawTargetX =
+        headWorldPosition.x - headDirection.x * distanceInFront;
+      const rawTargetY = headWorldPosition.y;
+      const rawTargetZ =
+        headWorldPosition.z - (headDirection.z * distanceInFront) / yFactor;
+
+      const targetX = rawTargetX + this._cameraOffset.x;
+      const targetY = rawTargetY + this._cameraOffset.y;
+      const targetZ = rawTargetZ + this._cameraOffset.z;
 
       const xDistance = Math.abs(targetX - this._camera.position.x);
       const yDistance = Math.abs(targetY - this._camera.position.y);
@@ -63,13 +86,22 @@ export class FocusManager {
         xDistance * xDistance + yDistance * yDistance + zDistance * zDistance
       );
 
-      const focusIntensity = this._baseFocusIntensity * (distanceToTarget + 1);
+      const focusIntensity =
+        this._focusIntensity * Math.pow(distanceToTarget + 1, 3);
 
       // Interpolate the camera position for smooth transition
-      this._camera.position.lerp(targetPosition, focusIntensity);
+      this._camera.position.lerp(
+        targetPosition,
+        focusIntensity > 1 ? 0.99 : focusIntensity
+      );
+
+      const lookAtPosition = new Vector3();
+      head.getWorldPosition(lookAtPosition);
+
+      lookAtPosition.add(this._lookAtOffset);
 
       // Make the camera look at the head
-      this._camera.lookAt(headWorldPosition);
+      this._camera.lookAt(lookAtPosition);
     }
 
     this._isFocused = true;

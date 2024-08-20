@@ -10,7 +10,11 @@ export const VRMComponent: React.FC = () => {
     console.log("VRM model loaded and VRMManager initialized.");
 
     // You can now use vrmManager.focusManager to focus the camera
-    // vrmManager.focusManager.focus();
+    vrmManager.focusManager.focus({
+      focusIntensity: 0.05,
+      cameraOffset: new Vector3(0, 0.2, -1),
+      lookAtOffset: new Vector3(0, -0.2, 0),
+    });
 
     // Utility function to repeat expressions
     const repeatExpressions = <T,>(expressions: T[], factor: number): T[] => {
@@ -40,22 +44,29 @@ export const VRMComponent: React.FC = () => {
       { duration: 1000, ou: 1 },
     ];
 
-    const sitDownExpression =
-      await vrmManager.expressionManager.motion.bvh2motion("SittingDown.bvh");
+    const fbxFiles = [
+      "Affection_intensity-2.fbx",
+      // "Angry_intensity-1.fbx",
+      // "Angry_intensity-2.fbx",
+      // "Bored_intensity-1.fbx",
+      // "Bored_intensity-2.fbx",
+      // "Happy_intensity-1.fbx",
+      // "Happy_intensity-2.fbx",
+      // "Happy_intensity-3.fbx",
+      // "Neutral_intensity-1.fbx",
+      // "Neutral_intensity-2.fbx",
+      // "Relaxed_intensity-1.fbx",
+      // "Relaxed_intensity-2.fbx",
+      // "Sad_intensity-1.fbx",
+      // "Sad_intensity-2.fbx",
+    ];
 
-    const fingerGunExpression =
-      await vrmManager.expressionManager.motion.vrma2motion("FingerGun.vrma");
-
-    setTimeout(() => {
-      vrmManager.expressionManager.express({
-        // faceExpressions: faceExpressions,
-        // mouthExpressions: mouthExpressions,
-        motionExpressions: [fingerGunExpression],
-      });
-    }, 1000);
-
-    const idleExpression =
-      await vrmManager.expressionManager.motion.fbx2motion("Idle.fbx");
+    const motionExpressionPromises = fbxFiles.map(async (file) => {
+      const expression =
+        await vrmManager.expressionManager.motion.fbx2motion(file);
+      return { ...expression, duration: 2000 };
+    });
+    const motionExpressions = await Promise.all(motionExpressionPromises);
 
     // Repeat expressions by a factor of 10
     const repeatedFaceExpressions = repeatExpressions(faceExpressions, 10);
@@ -65,7 +76,7 @@ export const VRMComponent: React.FC = () => {
     vrmManager.expressionManager.express({
       faceExpressions: repeatedFaceExpressions,
       mouthExpressions: repeatedMouthExpressions,
-      motionExpressions: [sitDownExpression, idleExpression], // Add any motion expressions if needed
+      motionExpressions: motionExpressions, // Add any motion expressions if needed
     });
 
     // Extend this to add more functionality in the future

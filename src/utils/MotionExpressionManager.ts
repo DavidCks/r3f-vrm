@@ -9,6 +9,7 @@ import { VRMAConverter } from "./converters/VRMAConverter";
 
 export interface MotionExpression {
   clip: THREE.AnimationClip;
+  duration?: number;
 }
 
 export class MotionExpressionManager {
@@ -57,7 +58,15 @@ export class MotionExpressionManager {
     if (this.startNextTimer) {
       clearTimeout(this.startNextTimer);
     }
-    this._applyExpressions(expressions, loop, 0.5, this.currentAnimationClip);
+    const expressionCopies = expressions.map((expression) => {
+      return { ...expression, clip: expression.clip.clone() };
+    });
+    this._applyExpressions(
+      expressionCopies,
+      loop,
+      0.5,
+      this.currentAnimationClip
+    );
   }
 
   // Apply motion expressions (implementation left blank for now)
@@ -88,8 +97,15 @@ export class MotionExpressionManager {
     }
     newAction.play();
 
+    let newExpressionDuration: number;
+    if (newExpression.duration) {
+      newExpressionDuration = newExpression.duration / 1000;
+    } else {
+      newExpressionDuration = newExpression.clip.duration;
+    }
+
     const newTransitionDuration =
-      newExpression.clip.duration < 0.5 ? newExpression.clip.duration / 2 : 0.5;
+      newExpressionDuration < 0.5 ? newExpressionDuration / 2 : 0.5;
     this.startNextTimer = setTimeout(
       () => {
         if (expressions.length === 0) {
@@ -105,7 +121,7 @@ export class MotionExpressionManager {
           this.currentAnimationClip
         );
       },
-      newExpression.clip.duration * 1000 - newTransitionDuration * 1000
+      newExpressionDuration * 1000 - newTransitionDuration * 1000
     );
   }
 

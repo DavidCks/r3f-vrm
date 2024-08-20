@@ -1,6 +1,7 @@
 {
-  "name": "react-package-boilerplate",
+  "name": "r3f-vrm",
   "version": "0.0.1",
+  "description": "A React package to easily integrate and interact with VRM avatars using @react-three/fiber and Three.js.",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
   "type": "module",
@@ -8,6 +9,20 @@
     "dev": "storybook dev",
     "build": "rollup -c"
   },
+  "keywords": [
+    "react",
+    "three.js",
+    "vrm",
+    "3D",
+    "avatar",
+    "@react-three/fiber",
+    "r3f"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DavidCks/r3f-vrm.git"
+  },
+  "author": "DavidCks",
   "dependencies": {
     "@gltf-transform/core": "^4.0.8",
     "@pixiv/three-vrm": "^3.1.0",
@@ -42,5 +57,9 @@
     "react": ">=16.8.0",
     "react-dom": ">=16.8.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/DavidCks/r3f-vrm/issues"
+  },
+  "homepage": "https://davidcks.onrender.com/"
 }
