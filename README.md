@@ -105,7 +105,7 @@ cd r3f-vrm
 npm install
 ```
 
-You can use storybook to test and develop components:
+The src directory has an index.tsx file that acts as a testing playground. You can use storybook to test and develop through that component (or configure your own if necessary):
 
 ```bash
 npm run dev

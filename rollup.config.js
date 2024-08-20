@@ -2,23 +2,48 @@ import babel from "@rollup/plugin-babel";
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import terser from "@rollup/plugin-terser";
-import pkg from "./package.json" assert { type: "json" };
+import typescript from "rollup-plugin-typescript2";
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export default {
-  input: "src/index.jsx",
+  input: "index.ts", // Ensure this is the correct entry point
   output: [
-    { file: pkg.main, format: "cjs" },
-    { file: pkg.module, format: "esm" },
+    {
+      file: "dist/index.cjs.js",
+      format: "cjs",
+      sourcemap: true,
+    },
+    {
+      file: "dist/index.esm.js",
+      format: "esm",
+      sourcemap: true,
+    },
   ],
   plugins: [
+    resolve({
+      extensions: [".js", ".jsx", ".ts", ".tsx"], // Handle .tsx files
+    }),
+    commonjs(),
+    typescript({
+      tsconfig: "./tsconfig.build.json",
+      exclude: ["**/__tests__/**"],
+      extensions: [".js", ".jsx", ".ts", ".tsx"],
+    }),
     babel({
       babelHelpers: "bundled",
       exclude: "node_modules/**",
-      presets: ["@babel/preset-env", "@babel/preset-react"],
+      extensions: [".js", ".jsx", ".ts", ".tsx"], // Babel should handle these too
+      presets: [
+        "@babel/preset-env",
+        "@babel/preset-react",
+        "@babel/preset-typescript", // Add this preset
+      ],
     }),
-    resolve(),
-    commonjs(),
     terser(),
   ],
-  external: Object.keys(pkg.peerDependencies),
+  external: ["react", "react-dom"], // Mark peer dependencies as external
 };
