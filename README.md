@@ -2,11 +2,15 @@
 
 This package provides a set of tools and components to easily integrate and interact with VRM avatars using `@react-three/fiber` and Three.js. It includes several managers for handling expressions, positions, and focus, as well as utilities for loading and managing VRM models and their animations.
 
+It currently provides utilities for converting fbx, vrma, and bvh files to expressions.
+
 ## Table of Contents
 
 - [r3f-vrm](#r3f-vrm)
   - [Table of Contents](#table-of-contents)
   - [Installation](#installation)
+  - [Animations](#animations)
+    - [Supported Animation Formats](#supported-animation-formats)
   - [Usage](#usage)
     - [VRMAvatar](#vrmavatar)
       - [Example](#example)
@@ -17,6 +21,8 @@ This package provides a set of tools and components to easily integrate and inte
       - [Methods](#methods-1)
     - [ExpressionManager](#expressionmanager)
       - [Methods](#methods-2)
+      - [Animation Conversion Worker](#animation-conversion-worker)
+      - [Prefetching Animations](#prefetching-animations)
     - [PositionManager](#positionmanager)
       - [Methods](#methods-3)
   - [Development](#development)
@@ -30,11 +36,25 @@ This package is hosted on npm:
 npm install @DavidCks/r3f-vrm
 ```
 
+## Animations
+
+You can use FBX, BVH, and VRMA files for animations. The `MotionExpressionManager` will convert these files to expressions that can be applied to the VRM model.
+
+### Supported Animation Formats
+
+- FBX:
+  - mixamo
+  - mootion
+- BVH:
+  - MoMask
+- VRMA:
+  - all
+
 ## Usage
 
 ### VRMAvatar
 
-`VRMAvatar` is a r3f component that loads a VRM model and triggers callbacks when the model is loaded or during the loading process. It integrates with the `VRMManager` to allow for controlling expressions and other interactions.
+`VRMAvatar` is a r3f component that loads a VRM model and triggers callbacks when the model is loaded and during the loading process. It integrates with the `VRMManager` to allow for controlling expressions and other interactions.
 
 #### Example
 
@@ -45,7 +65,7 @@ import { Vector3 } from "three";
 
 const MyVRMAvatar: React.FC = () => {
   return (
-    <VRMAvatar vrmUrl="path_to_vrm.vrm" initialPosition={new Vector3(0, 1, 0)} />
+    <VRMAvatar vrmUrl="path_to_vrm.vrm" />
   );
 };
 
@@ -67,7 +87,7 @@ export default MyVRMAvatar;
 
 ### FocusManager
 
-The `FocusManager` controls the camera's focus on the VRM model's head, providing smooth transitions and offsets.
+The `FocusManager` controls the camera's focus on the VRM model's head with smooth transitions and offsets.
 
 #### Methods
 
@@ -83,6 +103,52 @@ The `FocusManager` controls the camera's focus on the VRM model's head, providin
 
 - `express(expressionInput)`: Applies expressions to the VRM model.
 - `update(delta: number)`: Processes expressions over time.
+
+#### Animation Conversion Worker
+
+The conversion of animation files (fbx, vrma, bvh) to expressions can be offloaded to a Web Worker. This worker is created and managed by the `MotionExpressionWorkerClient` class, which is used internally by the `MotionExpressionManager`.
+
+This is useful for offloading the conversion process to a separate thread, preventing the main thread from being blocked during the conversion to avoid performance issues such as stuttering.
+
+To use the worker, you need to copy the `motion-expression-worker.bundle.js` file from the build directory to your public directory and pass the url to the `VRMAvatar` components `motionExpressionWorkerUr` prop:
+
+```tsx
+<VRMAvatar
+  ...
+  motionExpressionWorkerUrl={"motion-expression-worker.bundle.js"}
+  ...
+/>
+```
+
+To copy it to the public directory, you should use your build tool (e.g., webpack, parcel) to copy the file to the public directory. For example, in webpack, you can use the `CopyWebpackPlugin`:
+
+```js
+const CopyWebpackPlugin = require("copy-webpack-plugin");
+
+module.exports = {
+  ...
+  plugins: [
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: "node_modules/@DavidCks/r3f-vrm/build/motion-expression-worker.bundle.js", to: "public" },
+      ],
+    }),
+  ],
+  ...
+};
+```
+
+#### Prefetching Animations
+
+The `VRMAvatar` has a `prefetchFiles` prop that will prefetch the animations in the background. You can use this if you know you'll need the animations later on and want to avoid loading times.
+
+```tsx
+<VRMAvatar
+  ...
+  prefetchFiles={["idle.fbx", "walk.bvh", "run.vrma", ...]}
+  ...
+/>
+```
 
 ### PositionManager
 
