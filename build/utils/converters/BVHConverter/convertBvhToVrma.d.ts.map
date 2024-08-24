@@ -1,0 +1,1 @@
+{"version":3,"file":"convertBvhToVrma.d.ts","sourceRoot":"","sources":["../../../../src/utils/converters/BVHConverter/convertBvhToVrma.ts"],"names":[],"mappings":"AAEA,OAAO,EAAE,GAAG,EAAE,MAAM,yCAAyC,CAAC;AAe9D,wBAAsB,wBAAwB,CAC5C,GAAG,EAAE,GAAG,EACR,OAAO,CAAC,EAAE;IACR,KAAK,CAAC,EAAE,MAAM,CAAC;CAChB,GACA,OAAO,CAAC,WAAW,CAAC,CAiFtB"}

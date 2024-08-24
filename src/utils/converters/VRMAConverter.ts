@@ -9,71 +9,118 @@ import {
 import { MotionExpression } from "../MotionExpressionManager";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { vrma2motion } from "./VRMAConverter/vrma2motion";
+import { MotionConversionWorkerClient } from "../MotionExpressionWorkerClient";
+import { abFetch } from "./_common/arrayBufferFetcher";
 
 interface VRMAs {
   [fileName: string]: {
-    vrma: VRMAnimation;
+    motionExpression: MotionExpression | undefined;
   };
 }
 
 export class VRMAConverter {
-  private vrm: VRM;
-  private vrmas: VRMAs;
-  private loader: GLTFLoader;
+  private _vrm: VRM;
+  private _vrmas: VRMAs;
+  private _loader: GLTFLoader;
+  private _worker: MotionConversionWorkerClient | undefined;
 
-  constructor(vrm: VRM) {
-    this.vrm = vrm;
-    this.vrmas = {};
-    this.loader = new GLTFLoader();
-    this.loader.register((parser) => new VRMAnimationLoaderPlugin(parser));
+  constructor(
+    vrm: VRM,
+    worker: MotionConversionWorkerClient | undefined = undefined
+  ) {
+    this._vrm = vrm;
+    this._vrmas = {};
+    this._loader = new GLTFLoader();
+    this._loader.register((parser) => new VRMAnimationLoaderPlugin(parser));
+    this._worker = worker;
   }
 
   async vrma2motion(
     filePath: string,
-    onProgress: (name: string, progress: number) => void = (_1, _2) => {}
+    onProgress: (name: string, progress: number) => void = (_1, _2) => {},
+    buffer?: ArrayBuffer
   ): Promise<MotionExpression> {
-    // Create a promise to handle async loading
-    return new Promise((resolve, reject) => {
-      this.loader.load(
+    if (this._vrmas[filePath] && this._vrmas[filePath].motionExpression) {
+      return this._vrmas[filePath].motionExpression!;
+    }
+    this._vrmas[filePath] = {
+      motionExpression: undefined,
+    };
+    if (!buffer) {
+      if (
+        this._worker &&
+        Object.keys(this._worker.prefetchFiles).includes(filePath)
+      ) {
+        buffer = await this._worker.prefetchFiles[filePath];
+      } else {
+        buffer = await abFetch(filePath, onProgress);
+      }
+    }
+    return new Promise(async (resolve, reject) => {
+      // let the worker handle it
+      if (this._worker) {
+        const data = await this.workerConvertVrmaToMotion(
+          filePath,
+          buffer,
+          onProgress
+        );
+        if (!data) {
+          reject(
+            `An error occured while trying to convert ${filePath} to motion from its arrayBuffer using the worker`
+          );
+          return;
+        }
+        this._vrmas[data.filePath].motionExpression = data.motion;
+        resolve(data.motion);
+        return;
+      }
+
+      this._loader.parse(
+        buffer,
         filePath,
-        (object) => {
-          console.log("VRMA file loaded:", object);
-          // For now, just return the loaded object
-          const vrmAnimation = object.userData.vrmAnimations[0] as
+        async (gltf) => {
+          const vrma = gltf.userData.vrmAnimations[0] as
             | VRMAnimation
             | undefined;
-          if (!vrmAnimation) {
-            reject("no VRMA found in the loaded gltf object");
+          if (!vrma) {
+            reject(
+              `An error occured while trying to load ${filePath} from its arrayBuffer`
+            );
             return;
           }
-          this.vrmas[filePath] = { vrma: vrmAnimation };
-          const motion = this.convertVrmaToMotion(vrmAnimation, onProgress);
+          const motion = await this.convertVrmaToMotion(vrma, onProgress);
           if (motion) {
+            this._vrmas[filePath].motionExpression = motion;
             resolve(motion);
+            return;
           } else {
-            reject("unknown or unimplemented vrma format");
+            reject(
+              `An error occured while trying to convert ${filePath} to motion from its arrayBuffer`
+            );
+            return;
           }
         },
-        (xhr) => {
-          onProgress("vrmaLoader - " + filePath, xhr.loaded / xhr.total);
-        },
-        (error) => {
-          console.error(
-            "An error happened while loading the VRMA file:",
-            error
-          );
-          reject(error);
+        (e) => {
+          reject(e);
         }
       );
     });
   }
 
+  private async workerConvertVrmaToMotion(
+    filePath: string,
+    arrayBuffer: ArrayBuffer,
+    onProgress: (name: string, progress: number) => void = (_1, _2) => {}
+  ): Promise<{ filePath: string; motion: MotionExpression } | undefined> {
+    return await this._worker!.vrma2motion(filePath, arrayBuffer, onProgress);
+  }
+
   private convertVrmaToMotion(
     object: VRMAnimation,
     onProgress: (name: string, progress: number) => void = (_1, _2) => {}
-  ): Promise<MotionExpression> | undefined {
+  ): MotionExpression | undefined {
     if (object.humanoidTracks) {
-      return vrma2motion(object, this.vrm, onProgress);
+      return vrma2motion(object, this._vrm, onProgress);
     }
   }
 }

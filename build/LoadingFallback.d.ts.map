@@ -1,0 +1,1 @@
+{"version":3,"file":"LoadingFallback.d.ts","sourceRoot":"","sources":["../src/LoadingFallback.tsx"],"names":[],"mappings":"AAAA,OAAO,KAAiB,MAAM,OAAO,CAAC;AACtC,OAAO,EAAE,OAAO,EAA+B,MAAM,OAAO,CAAC;AAI7D,MAAM,WAAW,oBAAoB;IACnC,QAAQ,CAAC,EAAE,OAAO,CAAC;IACnB,QAAQ,CAAC,EAAE,MAAM,CAAC;CACnB;AAED,eAAO,MAAM,sBAAsB,EAAE,KAAK,CAAC,EAAE,CAAC,oBAAoB,CAsCjE,CAAC"}

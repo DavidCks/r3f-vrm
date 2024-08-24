@@ -5,8 +5,11 @@ import VRMManager from "./utils/VRMManager";
 import { Grid, OrbitControls } from "@react-three/drei";
 import { Vector3 } from "three";
 
+const relaxedFbxs = ["Relaxed_intensity-2.fbx", "Relaxed_intensity-1.fbx"];
+const peaceSignVrma = "PeaceSign.vrma";
+
 export const VRMComponent: React.FC = () => {
-  const handleLoad = async (vrmManager: VRMManager) => {
+  const handleLoad = (vrmManager: VRMManager) => {
     console.log("VRM model loaded and VRMManager initialized.");
 
     // You can now use vrmManager.focusManager to focus the camera
@@ -44,41 +47,32 @@ export const VRMComponent: React.FC = () => {
       { duration: 1000, ou: 1 },
     ];
 
-    const fbxFiles = [
-      "Affection_intensity-2.fbx",
-      // "Angry_intensity-1.fbx",
-      // "Angry_intensity-2.fbx",
-      // "Bored_intensity-1.fbx",
-      // "Bored_intensity-2.fbx",
-      // "Happy_intensity-1.fbx",
-      // "Happy_intensity-2.fbx",
-      // "Happy_intensity-3.fbx",
-      // "Neutral_intensity-1.fbx",
-      // "Neutral_intensity-2.fbx",
-      // "Relaxed_intensity-1.fbx",
-      // "Relaxed_intensity-2.fbx",
-      // "Sad_intensity-1.fbx",
-      // "Sad_intensity-2.fbx",
-    ];
-
-    const motionExpressionPromises = fbxFiles.map(async (file) => {
+    const motionExpressionPromises = relaxedFbxs.map(async (file) => {
       const expression =
         await vrmManager.expressionManager.motion.fbx2motion(file);
-      return { ...expression, duration: 2000 };
+      return { ...expression };
     });
-    const motionExpressions = await Promise.all(motionExpressionPromises);
+    Promise.all(motionExpressionPromises).then((motionExpressions) => {
+      // Repeat expressions by a factor of 10
+      const repeatedFaceExpressions = repeatExpressions(faceExpressions, 10);
+      const repeatedMouthExpressions = repeatExpressions(mouthExpressions, 10);
 
-    // Repeat expressions by a factor of 10
-    const repeatedFaceExpressions = repeatExpressions(faceExpressions, 10);
-    const repeatedMouthExpressions = repeatExpressions(mouthExpressions, 10);
-
-    // Call the express function with all expressions
-    vrmManager.expressionManager.express({
-      faceExpressions: repeatedFaceExpressions,
-      mouthExpressions: repeatedMouthExpressions,
-      motionExpressions: motionExpressions, // Add any motion expressions if needed
+      // Call the express function with all expressions
+      vrmManager.expressionManager.express({
+        faceExpressions: repeatedFaceExpressions,
+        mouthExpressions: repeatedMouthExpressions,
+        motionExpressions: motionExpressions, // Add any motion expressions if needed
+      });
+      const newExpression =
+        vrmManager.expressionManager.motion.vrma2motion(peaceSignVrma);
+      newExpression.then((newExpr) =>
+        setTimeout(async () => {
+          vrmManager.expressionManager.express({
+            motionExpressions: [newExpr], // Add any motion expressions if needed
+          });
+        }, 10000)
+      );
     });
-
     // Extend this to add more functionality in the future
   };
 
@@ -96,7 +90,12 @@ export const VRMComponent: React.FC = () => {
       />
       <OrbitControls />
       {/* Use "Ruri.vrm" as the path to your VRM file */}
-      <VRMAvatar vrmUrl="Yui.vrm" onLoad={handleLoad} />
+      <VRMAvatar
+        vrmUrl="Yui.vrm"
+        prefetchFiles={[...relaxedFbxs, peaceSignVrma]}
+        motionExpressionWorkerUrl={"motion-expression-worker.bundle.js"}
+        onLoad={handleLoad}
+      />
     </Canvas>
   );
 };

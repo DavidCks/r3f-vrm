@@ -19,52 +19,54 @@ const MOUTH_EXPRESSION_KEYS: (keyof MouthExpression)[] = [
 ];
 
 export class MouthExpressionManager {
-  private vrm: VRM;
-  private currentExpressionIndex = 0;
-  private expressionsQueue: MouthExpression[] = [];
-  private elapsedTime: number = 0;
-  private isActive = false;
+  private _vrm: VRM;
+  private _currentExpressionIndex = 0;
+  private _expressionsQueue: MouthExpression[] = [];
+  private _elapsedTime: number = 0;
+  private _isActive = false;
+  private _vrmUrl: string;
 
-  constructor(vrm: VRM) {
-    this.vrm = vrm;
+  constructor(vrm: VRM, vrmUrl: string) {
+    this._vrm = vrm;
+    this._vrmUrl = vrmUrl;
   }
 
   // Apply mouth expressions in sequence based on their individual durations
   applyExpressions(expressions: MouthExpression[]) {
-    this.expressionsQueue = expressions;
-    this.currentExpressionIndex = 0;
-    this.elapsedTime = 0;
-    this.isActive = true;
+    this._expressionsQueue = expressions;
+    this._currentExpressionIndex = 0;
+    this._elapsedTime = 0;
+    this._isActive = true;
 
     // Start the first expression immediately
-    this.applyExpression(this.expressionsQueue[0]);
+    this.applyExpression(this._expressionsQueue[0]);
   }
 
   // Call this method externally to process expressions
   processExpressions(delta: number) {
     if (
-      !this.isActive ||
-      this.currentExpressionIndex >= this.expressionsQueue.length
+      !this._isActive ||
+      this._currentExpressionIndex >= this._expressionsQueue.length
     ) {
-      this.isActive = false;
+      this._isActive = false;
       return;
     }
 
-    this.elapsedTime += delta * 1000; // Convert delta from seconds to milliseconds
+    this._elapsedTime += delta * 1000; // Convert delta from seconds to milliseconds
 
     const currentExpression =
-      this.expressionsQueue[this.currentExpressionIndex];
+      this._expressionsQueue[this._currentExpressionIndex];
 
     // Check if the current expression's duration has passed
-    if (this.elapsedTime >= currentExpression.duration) {
+    if (this._elapsedTime >= currentExpression.duration) {
       // Move to the next expression
-      this.currentExpressionIndex++;
-      this.elapsedTime = 0; // Reset elapsed time for the next expression
+      this._currentExpressionIndex++;
+      this._elapsedTime = 0; // Reset elapsed time for the next expression
 
       // Apply the next expression if available
-      if (this.currentExpressionIndex < this.expressionsQueue.length) {
+      if (this._currentExpressionIndex < this._expressionsQueue.length) {
         const nextExpression =
-          this.expressionsQueue[this.currentExpressionIndex];
+          this._expressionsQueue[this._currentExpressionIndex];
         this.applyExpression(nextExpression);
       }
     }
@@ -73,13 +75,13 @@ export class MouthExpressionManager {
   // Apply a single expression to the VRM, ensuring missing values are treated as zero
   private applyExpression(expression: MouthExpression) {
     const surpriseValue =
-      this.vrm.expressionManager?.getValue("surprised") ??
-      this.vrm.expressionManager?.getValue("Surprised") ??
+      this._vrm.expressionManager?.getValue("surprised") ??
+      this._vrm.expressionManager?.getValue("Surprised") ??
       null;
     MOUTH_EXPRESSION_KEYS.forEach((key) => {
       const value = expression[key] !== undefined ? expression[key]! : 0;
 
-      this.vrm.expressionManager?.setValue(
+      this._vrm.expressionManager?.setValue(
         key,
         value - (surpriseValue ?? 0) * 0.5
       );

@@ -2,11 +2,11 @@ import { MotionExpression } from "../../MotionExpressionManager";
 import * as THREE from "three";
 import { VRMHumanBoneName, VRM } from "@pixiv/three-vrm";
 
-export async function mootionFbx2motion(
+export function mootionFbx2motion(
   fbxObject: THREE.Group<THREE.Object3DEventMap>,
   vrm: VRM,
   onProgress: (name: string, progress: number) => void
-): Promise<MotionExpression> {
+): MotionExpression {
   const clip = THREE.AnimationClip.findByName(
     fbxObject.animations,
     fbxObject.animations[0].name

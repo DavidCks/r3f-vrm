@@ -3,12 +3,12 @@ import { Vector3, Color, MeshStandardMaterial } from "three";
 import { Mesh } from "three";
 import { useFrame } from "@react-three/fiber";
 
-interface LoadingFallbackProps {
-  position: Vector3;
-  progress: number;
+export interface LoadingFallbackProps {
+  position?: Vector3;
+  progress?: number;
 }
 
-export const LoadingFallback: React.FC<LoadingFallbackProps> = ({
+export const DefaultLoadingFallback: React.FC<LoadingFallbackProps> = ({
   position,
   progress,
 }) => {
@@ -21,9 +21,9 @@ export const LoadingFallback: React.FC<LoadingFallbackProps> = ({
       ballRef.current.rotation.x += 0.02;
     }
     if (swirlRef.current) {
-      swirlRef.current.rotation.x += 0.04 + progress / 1000;
-      swirlRef.current.rotation.y += 0.04 + progress / 1000;
-      swirlRef.current.rotation.z += 0.02 + progress / 1000;
+      swirlRef.current.rotation.x += 0.04 + (progress ?? 0) / 1000;
+      swirlRef.current.rotation.y += 0.04 + (progress ?? 0) / 1000;
+      swirlRef.current.rotation.z += 0.02 + (progress ?? 0) / 1000;
     }
     if (ballRef.current) {
       // Ensure the material is of type MeshStandardMaterial

@@ -32,52 +32,54 @@ const FACE_EXPRESSION_WEIGHTS: { [K in keyof FaceExpression]: number } = {
 } as const;
 
 export class FaceExpressionManager {
-  private vrm: VRM;
-  private currentExpressionIndex = 0;
-  private expressionsQueue: FaceExpression[] = [];
-  private elapsedTime: number = 0;
-  private isActive = false;
+  private _vrm: VRM;
+  private _currentExpressionIndex = 0;
+  private _expressionsQueue: FaceExpression[] = [];
+  private _elapsedTime: number = 0;
+  private _isActive = false;
+  private _vrmUrl: string;
 
-  constructor(vrm: VRM) {
-    this.vrm = vrm;
+  constructor(vrm: VRM, vrmUrl: string) {
+    this._vrm = vrm;
+    this._vrmUrl = vrmUrl;
   }
 
   // Apply face expressions in sequence based on their individual durations
   applyExpressions(expressions: FaceExpression[]) {
-    this.expressionsQueue = expressions;
-    this.currentExpressionIndex = 0;
-    this.elapsedTime = 0;
-    this.isActive = true;
+    this._expressionsQueue = expressions;
+    this._currentExpressionIndex = 0;
+    this._elapsedTime = 0;
+    this._isActive = true;
 
     // Start the first expression immediately
-    this.applyExpression(this.expressionsQueue[0]);
+    this.applyExpression(this._expressionsQueue[0]);
   }
 
   // Call this method externally to process expressions
   processExpressions(delta: number) {
     if (
-      !this.isActive ||
-      this.currentExpressionIndex >= this.expressionsQueue.length
+      !this._isActive ||
+      this._currentExpressionIndex >= this._expressionsQueue.length
     ) {
-      this.isActive = false;
+      this._isActive = false;
       return;
     }
 
-    this.elapsedTime += delta * 1000; // Convert delta from seconds to milliseconds
+    this._elapsedTime += delta * 1000; // Convert delta from seconds to milliseconds
 
     const currentExpression =
-      this.expressionsQueue[this.currentExpressionIndex];
+      this._expressionsQueue[this._currentExpressionIndex];
 
     // Check if the current expression's duration has passed
-    if (this.elapsedTime >= currentExpression.duration) {
+    if (this._elapsedTime >= currentExpression.duration) {
       // Move to the next expression
-      this.currentExpressionIndex++;
-      this.elapsedTime = 0; // Reset elapsed time for the next expression
+      this._currentExpressionIndex++;
+      this._elapsedTime = 0; // Reset elapsed time for the next expression
 
       // Apply the next expression if available
-      if (this.currentExpressionIndex < this.expressionsQueue.length) {
+      if (this._currentExpressionIndex < this._expressionsQueue.length) {
         const nextExpression =
-          this.expressionsQueue[this.currentExpressionIndex];
+          this._expressionsQueue[this._currentExpressionIndex];
         this.applyExpression(nextExpression);
       }
     }
@@ -90,11 +92,11 @@ export class FaceExpressionManager {
       const value =
         (expression[key] !== undefined ? expression[key]! : 0) * weight;
       // Apply for lowercase version
-      this.vrm.expressionManager?.setValue(key, value);
+      this._vrm.expressionManager?.setValue(key, value);
 
       // Apply for first-letter-uppercase version
       const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
-      this.vrm.expressionManager?.setValue(capitalizedKey, value);
+      this._vrm.expressionManager?.setValue(capitalizedKey, value);
     });
   }
 }

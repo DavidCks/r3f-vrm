@@ -1,0 +1,1 @@
+{"version":3,"file":"mapSkeletonToVrm.d.ts","sourceRoot":"","sources":["../../../../src/utils/converters/BVHConverter/mapSkeletonToVrm.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,KAAK,MAAM,OAAO,CAAC;AAC/B,OAAO,EAAE,gBAAgB,EAAE,MAAM,kBAAkB,CAAC;AAoXpD;;GAEG;AACH,wBAAgB,gBAAgB,CAC9B,IAAI,EAAE,KAAK,CAAC,IAAI,GACf,GAAG,CAAC,gBAAgB,EAAE,KAAK,CAAC,IAAI,CAAC,CAiInC"}

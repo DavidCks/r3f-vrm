@@ -111,7 +111,7 @@ web_modules/
 
 .next
 out
-dist/*
+public/*
 
 # Nuxt.js build / generate output
 

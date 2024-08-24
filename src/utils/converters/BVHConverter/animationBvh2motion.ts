@@ -4,15 +4,14 @@ import { VRMHumanBoneName, VRM } from "@pixiv/three-vrm";
 import { BVH } from "three/examples/jsm/Addons.js";
 import { convertBVHToVRMAnimation } from "./convertBvhToVrma";
 
-export async function animationBvh2vrma(
+export async function animationBvh2vrmaBlob(
   bvhObject: BVH,
   vrm: VRM,
   onProgress: (name: string, progress: number) => void
-): Promise<string> {
+): Promise<Blob> {
   const buffer = await convertBVHToVRMAnimation(bvhObject);
   const blob = new Blob([buffer], { type: "model/gltf-binary" });
-  const url = URL.createObjectURL(blob);
-  return url;
+  return blob as Blob;
 }
 
 const bvhVRMRigMap: { [animationBvhBoneName: string]: VRMHumanBoneName } = {
