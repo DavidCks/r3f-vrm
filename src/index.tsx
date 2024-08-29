@@ -4,8 +4,10 @@ import { VRMAvatar } from "./VRMAvatar";
 import VRMManager from "./utils/VRMManager";
 import { Grid, OrbitControls } from "@react-three/drei";
 import { Vector3 } from "three";
+import * as THREE from "three";
 
 const relaxedFbxs = ["Relaxed_intensity-2.fbx", "Relaxed_intensity-1.fbx"];
+const boredFbxs = ["Bored_intensity-2.fbx"]; //"Relaxed_intensity-1.fbx"];
 const peaceSignVrma = "PeaceSign.vrma";
 
 export const VRMComponent: React.FC = () => {
@@ -47,7 +49,7 @@ export const VRMComponent: React.FC = () => {
       { duration: 1000, ou: 1 },
     ];
 
-    const motionExpressionPromises = relaxedFbxs.map(async (file) => {
+    const motionExpressionPromises = boredFbxs.map(async (file) => {
       const expression =
         await vrmManager.expressionManager.motion.fbx2motion(file);
       return { ...expression };
@@ -62,16 +64,8 @@ export const VRMComponent: React.FC = () => {
         faceExpressions: repeatedFaceExpressions,
         mouthExpressions: repeatedMouthExpressions,
         motionExpressions: motionExpressions, // Add any motion expressions if needed
+        loopMotion: THREE.LoopRepeat,
       });
-      const newExpression =
-        vrmManager.expressionManager.motion.vrma2motion(peaceSignVrma);
-      newExpression.then((newExpr) =>
-        setTimeout(async () => {
-          vrmManager.expressionManager.express({
-            motionExpressions: [newExpr], // Add any motion expressions if needed
-          });
-        }, 10000)
-      );
     });
     // Extend this to add more functionality in the future
   };
