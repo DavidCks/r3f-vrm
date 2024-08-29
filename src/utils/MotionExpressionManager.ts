@@ -68,6 +68,14 @@ export class MotionExpressionManager {
     const expressionCopies = expressions.map((expression) => {
       return { ...expression, clip: expression.clip.clone() };
     });
+    if (loop == THREE.LoopRepeat) {
+      const repeatedExpressionCopies: MotionExpression[] = [];
+      for (const eCopy of expressionCopies) {
+        const newECopy = { ...eCopy, clip: eCopy.clip.clone() };
+        repeatedExpressionCopies.push(newECopy);
+      }
+      expressionCopies.push(...repeatedExpressionCopies);
+    }
     this._applyExpressions(
       expressionCopies,
       loop,
@@ -84,6 +92,11 @@ export class MotionExpressionManager {
     previousClip: THREE.AnimationClip | null = null
   ) {
     const newExpression = expressions.shift();
+    if (loop == THREE.LoopRepeat) {
+      if (newExpression) {
+        expressions.push(newExpression);
+      }
+    }
     if (!newExpression) {
       return;
     }
