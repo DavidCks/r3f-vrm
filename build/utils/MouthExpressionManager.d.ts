@@ -1,11 +1,12 @@
 import { VRM } from "@pixiv/three-vrm";
-export interface MouthExpression {
+export interface MouthExpression<T = any> {
     duration: number;
     aa?: number;
     ee?: number;
     ih?: number;
     oh?: number;
     ou?: number;
+    metadata: T;
 }
 export declare class MouthExpressionManager {
     private _vrm;

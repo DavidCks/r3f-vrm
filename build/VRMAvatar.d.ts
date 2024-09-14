@@ -1,6 +1,6 @@
 import React from "react";
 import { Vector3 } from "three";
-import VRMManager from "./utils/VRMManager";
+import { VRMManager } from "./utils/VRMManager";
 interface VRMAvatarProps {
     vrmUrl: string;
     prefetchFiles?: string[];

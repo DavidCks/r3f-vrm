@@ -1,9 +1,12 @@
 import { VRM } from "@pixiv/three-vrm";
 import * as THREE from "three";
 import { MotionConversionWorkerClient } from "./MotionExpressionWorkerClient";
-export interface MotionExpression {
+import { Observable } from "rxjs";
+import { LoopType } from "./ExpressionManager";
+export interface MotionExpression<T = any> {
     clip: THREE.AnimationClip;
     duration?: number;
+    metadata?: T;
 }
 export declare class MotionExpressionManager {
     private _vrm;
@@ -15,10 +18,11 @@ export declare class MotionExpressionManager {
     private _startNextTimer;
     private _worker;
     constructor(vrm: VRM, vrmUrl: string, workerClient?: MotionConversionWorkerClient);
+    x2motion(type: "fbx" | "bvh" | "vrma", filePath: string, onProgress?: (name: string, progress: number) => void): Promise<MotionExpression>;
     fbx2motion(filePath: string, onProgress?: (name: string, progress: number) => void): Promise<MotionExpression>;
     bvh2motion(filePath: string, onProgress?: (name: string, progress: number) => void): Promise<MotionExpression>;
     vrma2motion(filePath: string, onProgress?: (name: string, progress: number) => void): Promise<MotionExpression>;
-    applyExpressions(expressions: MotionExpression[], loop?: THREE.AnimationActionLoopStyles): void;
+    applyExpressions(expressions: MotionExpression[], loop?: LoopType): Observable<MotionExpression>;
     private _applyExpressions;
     processExpressions(delta: number): void;
 }
