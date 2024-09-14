@@ -5,7 +5,7 @@ import { ExpressionManager } from "./ExpressionManager";
 import { PositionManager } from "./PositionManager";
 import { MotionConversionWorkerClient } from "./MotionExpressionWorkerClient";
 
-class VRMManager {
+export class VRMManager {
   public vrm: VRM;
   public focusManager: FocusManager;
   public expressionManager: ExpressionManager;
@@ -39,5 +39,3 @@ class VRMManager {
 
   // Add other VRM-related methods here in the future
 }
-
-export default VRMManager;
