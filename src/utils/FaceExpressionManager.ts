@@ -1,6 +1,6 @@
 import { VRM } from "@pixiv/three-vrm";
 
-export interface FaceExpression {
+export interface FaceExpression<T = any> {
   duration: number;
   angry?: number;
   happy?: number;
@@ -8,6 +8,7 @@ export interface FaceExpression {
   relaxed?: number;
   sad?: number;
   surprised?: number;
+  metadata?: T;
 }
 
 // Define the keys array once, outside of the class
@@ -42,6 +43,26 @@ export class FaceExpressionManager {
   constructor(vrm: VRM, vrmUrl: string) {
     this._vrm = vrm;
     this._vrmUrl = vrmUrl;
+  }
+
+  public get currentExpression() {
+    const angry = this._vrm.expressionManager?.getValue("angry") ?? 0;
+    const happy = this._vrm.expressionManager?.getValue("happy") ?? 0;
+    const neutral = this._vrm.expressionManager?.getValue("neutral") ?? 0;
+    const relaxed = this._vrm.expressionManager?.getValue("relaxed") ?? 0;
+    const sad = this._vrm.expressionManager?.getValue("sad") ?? 0;
+    const surprised =
+      this._vrm.expressionManager?.getValue("surprised") ??
+      this._vrm.expressionManager?.getValue("Surprised") ??
+      0;
+    return {
+      angry,
+      happy,
+      neutral,
+      relaxed,
+      sad,
+      surprised,
+    };
   }
 
   // Apply face expressions in sequence based on their individual durations
