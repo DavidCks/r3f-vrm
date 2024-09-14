@@ -95,6 +95,8 @@ export class FocusManager {
         focusIntensity > 1 ? 0.99 : focusIntensity
       );
 
+      this._vrm.lookAt?.lookAt(this._camera.position);
+
       const lookAtPosition = new Vector3();
       head.getWorldPosition(lookAtPosition);
 
