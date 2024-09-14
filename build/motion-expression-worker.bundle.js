@@ -1,6 +1,115 @@
 (function () {
   'use strict';
 
+  function _arrayLikeToArray(r, a) {
+    (null == a || a > r.length) && (a = r.length);
+    for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e];
+    return n;
+  }
+  function _arrayWithHoles(r) {
+    if (Array.isArray(r)) return r;
+  }
+  function _arrayWithoutHoles(r) {
+    if (Array.isArray(r)) return _arrayLikeToArray(r);
+  }
+  function asyncGeneratorStep(n, t, e, r, o, a, c) {
+    try {
+      var i = n[a](c),
+        u = i.value;
+    } catch (n) {
+      return void e(n);
+    }
+    i.done ? t(u) : Promise.resolve(u).then(r, o);
+  }
+  function _asyncToGenerator(n) {
+    return function () {
+      var t = this,
+        e = arguments;
+      return new Promise(function (r, o) {
+        var a = n.apply(t, e);
+        function _next(n) {
+          asyncGeneratorStep(a, r, o, _next, _throw, "next", n);
+        }
+        function _throw(n) {
+          asyncGeneratorStep(a, r, o, _next, _throw, "throw", n);
+        }
+        _next(void 0);
+      });
+    };
+  }
+  function _classCallCheck(a, n) {
+    if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function");
+  }
+  function _defineProperties(e, r) {
+    for (var t = 0; t < r.length; t++) {
+      var o = r[t];
+      o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o);
+    }
+  }
+  function _createClass(e, r, t) {
+    return r && _defineProperties(e.prototype, r), Object.defineProperty(e, "prototype", {
+      writable: !1
+    }), e;
+  }
+  function _createForOfIteratorHelper(r, e) {
+    var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"];
+    if (!t) {
+      if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e) {
+        t && (r = t);
+        var n = 0,
+          F = function () {};
+        return {
+          s: F,
+          n: function () {
+            return n >= r.length ? {
+              done: !0
+            } : {
+              done: !1,
+              value: r[n++]
+            };
+          },
+          e: function (r) {
+            throw r;
+          },
+          f: F
+        };
+      }
+      throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+    }
+    var o,
+      a = !0,
+      u = !1;
+    return {
+      s: function () {
+        t = t.call(r);
+      },
+      n: function () {
+        var r = t.next();
+        return a = r.done, r;
+      },
+      e: function (r) {
+        u = !0, o = r;
+      },
+      f: function () {
+        try {
+          a || null == t.return || t.return();
+        } finally {
+          if (u) throw o;
+        }
+      }
+    };
+  }
+  function _defineProperty(e, r, t) {
+    return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, {
+      value: t,
+      enumerable: !0,
+      configurable: !0,
+      writable: !0
+    }) : e[r] = t, e;
+  }
+  function _iterableToArray(r) {
+    if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r);
+  }
   function _iterableToArrayLimit(r, l) {
     var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"];
     if (null != t) {
@@ -27,6 +136,12 @@
       }
       return a;
     }
+  }
+  function _nonIterableRest() {
+    throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+  }
+  function _nonIterableSpread() {
+    throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
   }
   function _regeneratorRuntime() {
     _regeneratorRuntime = function () {
@@ -329,11 +444,17 @@
       }
     }, e;
   }
+  function _slicedToArray(r, e) {
+    return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest();
+  }
+  function _toConsumableArray(r) {
+    return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread();
+  }
   function _toPrimitive(t, r) {
     if ("object" != typeof t || !t) return t;
     var e = t[Symbol.toPrimitive];
     if (void 0 !== e) {
-      var i = e.call(t, r );
+      var i = e.call(t, r);
       if ("object" != typeof i) return i;
       throw new TypeError("@@toPrimitive must return a primitive value.");
     }
@@ -343,155 +464,12 @@
     var i = _toPrimitive(t, "string");
     return "symbol" == typeof i ? i : i + "";
   }
-  function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
-    try {
-      var info = gen[key](arg);
-      var value = info.value;
-    } catch (error) {
-      reject(error);
-      return;
+  function _unsupportedIterableToArray(r, a) {
+    if (r) {
+      if ("string" == typeof r) return _arrayLikeToArray(r, a);
+      var t = {}.toString.call(r).slice(8, -1);
+      return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0;
     }
-    if (info.done) {
-      resolve(value);
-    } else {
-      Promise.resolve(value).then(_next, _throw);
-    }
-  }
-  function _asyncToGenerator(fn) {
-    return function () {
-      var self = this,
-        args = arguments;
-      return new Promise(function (resolve, reject) {
-        var gen = fn.apply(self, args);
-        function _next(value) {
-          asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
-        }
-        function _throw(err) {
-          asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
-        }
-        _next(undefined);
-      });
-    };
-  }
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-  function _defineProperties(target, props) {
-    for (var i = 0; i < props.length; i++) {
-      var descriptor = props[i];
-      descriptor.enumerable = descriptor.enumerable || false;
-      descriptor.configurable = true;
-      if ("value" in descriptor) descriptor.writable = true;
-      Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor);
-    }
-  }
-  function _createClass(Constructor, protoProps, staticProps) {
-    if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-    Object.defineProperty(Constructor, "prototype", {
-      writable: false
-    });
-    return Constructor;
-  }
-  function _defineProperty(obj, key, value) {
-    key = _toPropertyKey(key);
-    if (key in obj) {
-      Object.defineProperty(obj, key, {
-        value: value,
-        enumerable: true,
-        configurable: true,
-        writable: true
-      });
-    } else {
-      obj[key] = value;
-    }
-    return obj;
-  }
-  function _slicedToArray(arr, i) {
-    return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
-  }
-  function _toConsumableArray(arr) {
-    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
-  }
-  function _arrayWithoutHoles(arr) {
-    if (Array.isArray(arr)) return _arrayLikeToArray(arr);
-  }
-  function _arrayWithHoles(arr) {
-    if (Array.isArray(arr)) return arr;
-  }
-  function _iterableToArray(iter) {
-    if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter);
-  }
-  function _unsupportedIterableToArray(o, minLen) {
-    if (!o) return;
-    if (typeof o === "string") return _arrayLikeToArray(o, minLen);
-    var n = Object.prototype.toString.call(o).slice(8, -1);
-    if (n === "Object" && o.constructor) n = o.constructor.name;
-    if (n === "Map" || n === "Set") return Array.from(o);
-    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
-  }
-  function _arrayLikeToArray(arr, len) {
-    if (len == null || len > arr.length) len = arr.length;
-    for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
-    return arr2;
-  }
-  function _nonIterableSpread() {
-    throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-  }
-  function _nonIterableRest() {
-    throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-  }
-  function _createForOfIteratorHelper(o, allowArrayLike) {
-    var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"];
-    if (!it) {
-      if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike  ) {
-        if (it) o = it;
-        var i = 0;
-        var F = function () {};
-        return {
-          s: F,
-          n: function () {
-            if (i >= o.length) return {
-              done: true
-            };
-            return {
-              done: false,
-              value: o[i++]
-            };
-          },
-          e: function (e) {
-            throw e;
-          },
-          f: F
-        };
-      }
-      throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-    }
-    var normalCompletion = true,
-      didErr = false,
-      err;
-    return {
-      s: function () {
-        it = it.call(o);
-      },
-      n: function () {
-        var step = it.next();
-        normalCompletion = step.done;
-        return step;
-      },
-      e: function (e) {
-        didErr = true;
-        err = e;
-      },
-      f: function () {
-        try {
-          if (!normalCompletion && it.return != null) it.return();
-        } finally {
-          if (didErr) throw err;
-        }
-      }
-    };
   }
 
   /**
@@ -43647,7 +43625,7 @@ void main() {
     return _convertBVHToVRMAnimation.apply(this, arguments);
   }
   function _convertBVHToVRMAnimation() {
-    _convertBVHToVRMAnimation = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(bvh, options) {
+    _convertBVHToVRMAnimation = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(bvh, options) {
       var _options$scale;
       var scale, skeleton, clip, rootBone, vrmBoneMap, hipsBone, hipsBoneName, hipsPositionTrack, spineBone, spineBoneName, spinePositionTrack, filteredTracks, _iterator2, _step2, origTrack, track, newTrack, _newTrack, offset, i, boundingBox, exporter, gltf;
       return _regeneratorRuntime().wrap(function _callee$(_context) {
@@ -43744,7 +43722,7 @@ void main() {
     return _animationBvh2vrmaBlob.apply(this, arguments);
   }
   function _animationBvh2vrmaBlob() {
-    _animationBvh2vrmaBlob = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(bvhObject, vrm, onProgress) {
+    _animationBvh2vrmaBlob = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(bvhObject, vrm, onProgress) {
       var buffer, blob;
       return _regeneratorRuntime().wrap(function _callee$(_context) {
         while (1) switch (_context.prev = _context.next) {
@@ -43831,7 +43809,7 @@ void main() {
   // 'bones[RThumb]' ];
 
   /*!
-   * @pixiv/three-vrm-animation v3.1.0
+   * @pixiv/three-vrm-animation v3.1.1
    * The implementation of VRM Animation
    *
    * Copyright (c) 2019-2024 pixiv Inc.
@@ -44346,6 +44324,11 @@ void main() {
         const hips = hipsNode != null ? yield gltf.parser.getDependency("node", hipsNode) : null;
         const restHipsPosition = new Vector3();
         hips == null ? void 0 : hips.getWorldPosition(restHipsPosition);
+        if (restHipsPosition.lengthSq() < 1e-6) {
+          console.warn(
+            "VRMAnimationLoaderPlugin: The loaded VRM Animation violates the VRM T-pose (The rest hips position is approximately zero.)"
+          );
+        }
         const clips = gltf.animations;
         const animations = clips.map((clip, iAnimation) => {
           const defAnimation = defGltf.animations[iAnimation];
@@ -44490,7 +44473,7 @@ void main() {
     }
   };
   /*!
-   * @pixiv/three-vrm-core v3.1.0
+   * @pixiv/three-vrm-core v3.1.1
    * The implementation of core features of VRM, for @pixiv/three-vrm
    *
    * Copyright (c) 2019-2024 pixiv Inc.
@@ -49279,7 +49262,7 @@ void main() {
     return _abFetch.apply(this, arguments);
   }
   function _abFetch() {
-    _abFetch = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(filePath) {
+    _abFetch = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(filePath) {
       var onProgress,
         _args = arguments;
       return _regeneratorRuntime().wrap(function _callee$(_context) {
@@ -49331,7 +49314,7 @@ void main() {
     return _createClass(VRMAConverter, [{
       key: "vrma2motion",
       value: function () {
-        var _vrma2motion = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(filePath) {
+        var _vrma2motion = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(filePath) {
           var _this = this;
           var onProgress,
             buffer,
@@ -49370,8 +49353,8 @@ void main() {
               case 14:
                 buffer = _context3.sent;
               case 15:
-                return _context3.abrupt("return", new Promise( /*#__PURE__*/function () {
-                  var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(resolve, reject) {
+                return _context3.abrupt("return", new Promise(/*#__PURE__*/function () {
+                  var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(resolve, reject) {
                     var data;
                     return _regeneratorRuntime().wrap(function _callee2$(_context2) {
                       while (1) switch (_context2.prev = _context2.next) {
@@ -49396,7 +49379,7 @@ void main() {
                           return _context2.abrupt("return");
                         case 10:
                           _this._loader.parse(buffer, filePath, /*#__PURE__*/function () {
-                            var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(gltf) {
+                            var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(gltf) {
                               var vrma, motion;
                               return _regeneratorRuntime().wrap(function _callee$(_context) {
                                 while (1) switch (_context.prev = _context.next) {
@@ -49459,7 +49442,7 @@ void main() {
     }, {
       key: "workerConvertVrmaToMotion",
       value: function () {
-        var _workerConvertVrmaToMotion = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(filePath, arrayBuffer) {
+        var _workerConvertVrmaToMotion = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(filePath, arrayBuffer) {
           var onProgress,
             _args4 = arguments;
           return _regeneratorRuntime().wrap(function _callee4$(_context4) {
@@ -49509,7 +49492,7 @@ void main() {
     return _createClass(BVHConverter, [{
       key: "bvh2motion",
       value: function () {
-        var _bvh2motion = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(filePath) {
+        var _bvh2motion = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(filePath) {
           var _this = this;
           var onProgress,
             buffer,
@@ -49548,8 +49531,8 @@ void main() {
               case 14:
                 buffer = _context2.sent;
               case 15:
-                return _context2.abrupt("return", new Promise( /*#__PURE__*/function () {
-                  var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(resolve, reject) {
+                return _context2.abrupt("return", new Promise(/*#__PURE__*/function () {
+                  var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(resolve, reject) {
                     var data, bvhPlainText, bvh, motion;
                     return _regeneratorRuntime().wrap(function _callee$(_context) {
                       while (1) switch (_context.prev = _context.next) {
@@ -49613,7 +49596,7 @@ void main() {
     }, {
       key: "workerConvertBvhToMotion",
       value: function () {
-        var _workerConvertBvhToMotion = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(filePath, arrayBuffer) {
+        var _workerConvertBvhToMotion = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(filePath, arrayBuffer) {
           var onProgress,
             _args3 = arguments;
           return _regeneratorRuntime().wrap(function _callee3$(_context3) {
@@ -49635,7 +49618,7 @@ void main() {
     }, {
       key: "convertBvhToMotion",
       value: function () {
-        var _convertBvhToMotion = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(object) {
+        var _convertBvhToMotion = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(object) {
           var onProgress,
             vrmaBlob,
             blobUrl,
@@ -50042,7 +50025,7 @@ void main() {
    * @returns The decompressed version of the data
    */
   function unzlibSync(data, opts) {
-      return inflt(data.subarray(zls(data, opts ), -4), { i: 2 }, opts , opts );
+      return inflt(data.subarray(zls(data, opts), -4), { i: 2 }, opts, opts);
   }
   // text decoder
   var td = typeof TextDecoder != 'undefined' && /*#__PURE__*/ new TextDecoder();
@@ -55033,7 +55016,7 @@ void main() {
     return _createClass(FBXConverter, [{
       key: "fbx2motion",
       value: function () {
-        var _fbx2motion = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(filePath) {
+        var _fbx2motion = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(filePath) {
           var _this = this;
           var onProgress,
             buffer,
@@ -55072,8 +55055,8 @@ void main() {
               case 14:
                 buffer = _context2.sent;
               case 15:
-                return _context2.abrupt("return", new Promise( /*#__PURE__*/function () {
-                  var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(resolve, reject) {
+                return _context2.abrupt("return", new Promise(/*#__PURE__*/function () {
+                  var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(resolve, reject) {
                     var data, fbx, motion;
                     return _regeneratorRuntime().wrap(function _callee$(_context) {
                       while (1) switch (_context.prev = _context.next) {
@@ -55134,7 +55117,7 @@ void main() {
     }, {
       key: "workerConvertFbxToMotion",
       value: function () {
-        var _workerConvertFbxToMotion = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(filePath, arrayBuffer) {
+        var _workerConvertFbxToMotion = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(filePath, arrayBuffer) {
           var onProgress,
             _args3 = arguments;
           return _regeneratorRuntime().wrap(function _callee3$(_context3) {
@@ -55173,7 +55156,7 @@ void main() {
   }();
 
   /*!
-   * @pixiv/three-vrm v3.1.0
+   * @pixiv/three-vrm v3.1.1
    * VRM file loader for three.js.
    *
    * Copyright (c) 2019-2024 pixiv Inc.
@@ -59328,9 +59311,10 @@ void main() {
      * This uses a map from v0 render queue to v1 compliant render queue offset which is generated in {@link _populateRenderQueueMap}.
      */
     _v0ParseRenderQueue(materialProperties) {
-      var _a, _b, _c;
-      const isTransparent = (_b = (_a = materialProperties.keywordMap) == null ? void 0 : _a["_ALPHABLEND_ON"]) != null ? _b : false;
-      const enabledZWrite = ((_c = materialProperties.floatProperties) == null ? void 0 : _c["_ZWrite"]) === 1;
+      var _a, _b;
+      const isTransparentZWrite = materialProperties.shader === "VRM/UnlitTransparentZWrite";
+      const isTransparent = ((_a = materialProperties.keywordMap) == null ? void 0 : _a["_ALPHABLEND_ON"]) != void 0 || materialProperties.shader === "VRM/UnlitTransparent" || isTransparentZWrite;
+      const enabledZWrite = ((_b = materialProperties.floatProperties) == null ? void 0 : _b["_ZWrite"]) === 1 || isTransparentZWrite;
       let offset = 0;
       if (isTransparent) {
         const v0Queue = materialProperties.renderQueue;
@@ -59352,9 +59336,10 @@ void main() {
       const renderQueuesTransparent = /* @__PURE__ */ new Set();
       const renderQueuesTransparentZWrite = /* @__PURE__ */ new Set();
       materialPropertiesList.forEach((materialProperties) => {
-        var _a, _b, _c;
-        const isTransparent = (_b = (_a = materialProperties.keywordMap) == null ? void 0 : _a["_ALPHABLEND_ON"]) != null ? _b : false;
-        const enabledZWrite = ((_c = materialProperties.floatProperties) == null ? void 0 : _c["_ZWrite"]) === 1;
+        var _a, _b;
+        const isTransparentZWrite = materialProperties.shader === "VRM/UnlitTransparentZWrite";
+        const isTransparent = ((_a = materialProperties.keywordMap) == null ? void 0 : _a["_ALPHABLEND_ON"]) != void 0 || materialProperties.shader === "VRM/UnlitTransparent" || isTransparentZWrite;
+        const enabledZWrite = ((_b = materialProperties.floatProperties) == null ? void 0 : _b["_ZWrite"]) === 1 || isTransparentZWrite;
         if (isTransparent) {
           const v0Queue = materialProperties.renderQueue;
           if (v0Queue != null) {
@@ -60411,6 +60396,7 @@ void main() {
   var VRMSpringBoneManager = class {
     constructor() {
       this._joints = /* @__PURE__ */ new Set();
+      this._hasWarnedCircularDependency = false;
       this._objectSpringBonesMap = /* @__PURE__ */ new Map();
     }
     get joints() {
@@ -60523,7 +60509,7 @@ void main() {
      * Update a spring bone.
      * If there are other spring bone that are dependant, it will try to update them recursively.
      * It updates matrixWorld of all ancestors and myself.
-     * It might throw an error if there are circular dependencies.
+     * It might log an warning message if there are any circular dependencies.
      *
      * Intended to be used in {@link update} and {@link _processSpringBone} itself recursively.
      *
@@ -60537,7 +60523,11 @@ void main() {
         return;
       }
       if (springBonesTried.has(springBone)) {
-        throw new Error("VRMSpringBoneManager: Circular dependency detected while updating springbones");
+        if (!this._hasWarnedCircularDependency) {
+          console.warn("VRMSpringBoneManager: Circular dependency detected while updating springbones");
+          this._hasWarnedCircularDependency = true;
+        }
+        return;
       }
       springBonesTried.add(springBone);
       const depObjects = this._getDependencies(springBone);
@@ -60967,7 +60957,7 @@ void main() {
     }
   };
   /*!
-   * @pixiv/three-vrm-core v3.1.0
+   * @pixiv/three-vrm-core v3.1.1
    * The implementation of core features of VRM, for @pixiv/three-vrm
    *
    * Copyright (c) 2019-2024 pixiv Inc.
@@ -60975,7 +60965,7 @@ void main() {
    * https://github.com/pixiv/three-vrm/blob/release/LICENSE
    */
   /*!
-   * @pixiv/three-vrm-materials-mtoon v3.1.0
+   * @pixiv/three-vrm-materials-mtoon v3.1.1
    * MToon (toon material) module for @pixiv/three-vrm
    *
    * Copyright (c) 2019-2024 pixiv Inc.
@@ -60983,7 +60973,7 @@ void main() {
    * https://github.com/pixiv/three-vrm/blob/release/LICENSE
    */
   /*!
-   * @pixiv/three-vrm-materials-hdr-emissive-multiplier v3.1.0
+   * @pixiv/three-vrm-materials-hdr-emissive-multiplier v3.1.1
    * Support VRMC_hdr_emissiveMultiplier for @pixiv/three-vrm
    *
    * Copyright (c) 2019-2024 pixiv Inc.
@@ -60991,7 +60981,7 @@ void main() {
    * https://github.com/pixiv/three-vrm/blob/release/LICENSE
    */
   /*!
-   * @pixiv/three-vrm-materials-v0compat v3.1.0
+   * @pixiv/three-vrm-materials-v0compat v3.1.1
    * VRM0.0 materials compatibility layer plugin for @pixiv/three-vrm
    *
    * Copyright (c) 2019-2024 pixiv Inc.
@@ -60999,7 +60989,7 @@ void main() {
    * https://github.com/pixiv/three-vrm/blob/release/LICENSE
    */
   /*!
-   * @pixiv/three-vrm-node-constraint v3.1.0
+   * @pixiv/three-vrm-node-constraint v3.1.1
    * Node constraint module for @pixiv/three-vrm
    *
    * Copyright (c) 2019-2024 pixiv Inc.
@@ -61007,7 +60997,7 @@ void main() {
    * https://github.com/pixiv/three-vrm/blob/release/LICENSE
    */
   /*!
-   * @pixiv/three-vrm-springbone v3.1.0
+   * @pixiv/three-vrm-springbone v3.1.1
    * Spring bone module for @pixiv/three-vrm
    *
    * Copyright (c) 2019-2024 pixiv Inc.
@@ -61017,8 +61007,8 @@ void main() {
 
   // Define the loadVrm function
   function loadVrm(vrmUrl, buffer) {
-    return new Promise( /*#__PURE__*/function () {
-      var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(resolve, reject) {
+    return new Promise(/*#__PURE__*/function () {
+      var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(resolve, reject) {
         var loader, gltf, vrm;
         return _regeneratorRuntime().wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
@@ -61063,7 +61053,7 @@ void main() {
     return _workerVrma2motion.apply(this, arguments);
   }
   function _workerVrma2motion() {
-    _workerVrma2motion = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(filePath, uid, arrayBuffer, vrm) {
+    _workerVrma2motion = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(filePath, uid, arrayBuffer, vrm) {
       var converter, motion;
       return _regeneratorRuntime().wrap(function _callee2$(_context2) {
         while (1) switch (_context2.prev = _context2.next) {
@@ -61086,7 +61076,7 @@ void main() {
     return _workerFbx2motion.apply(this, arguments);
   }
   function _workerFbx2motion() {
-    _workerFbx2motion = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(filePath, uid, arrayBuffer, vrm) {
+    _workerFbx2motion = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(filePath, uid, arrayBuffer, vrm) {
       var converter, motion;
       return _regeneratorRuntime().wrap(function _callee3$(_context3) {
         while (1) switch (_context3.prev = _context3.next) {
@@ -61109,7 +61099,7 @@ void main() {
     return _workerBvh2vrmaBlob.apply(this, arguments);
   }
   function _workerBvh2vrmaBlob() {
-    _workerBvh2vrmaBlob = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(filePath, uid, arrayBuffer, vrm) {
+    _workerBvh2vrmaBlob = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(filePath, uid, arrayBuffer, vrm) {
       var converter, motion;
       return _regeneratorRuntime().wrap(function _callee4$(_context4) {
         while (1) switch (_context4.prev = _context4.next) {
@@ -61149,7 +61139,7 @@ void main() {
   };
   // add event listener
   self.addEventListener("message", /*#__PURE__*/function () {
-    var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(e) {
+    var _ref = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(e) {
       var data, vrm, func, result;
       return _regeneratorRuntime().wrap(function _callee$(_context) {
         while (1) switch (_context.prev = _context.next) {
