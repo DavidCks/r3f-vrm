@@ -4,7 +4,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { VRMLoaderPlugin, VRM } from "@pixiv/three-vrm";
 import { Object3D, Group, Vector3 } from "three";
 import { DefaultLoadingFallback } from "./LoadingFallback";
-import VRMManager from "./utils/VRMManager"; // Import VRMManager
+import { VRMManager } from "./utils/VRMManager"; // Import VRMManager
 import { MotionConversionWorkerClient } from "./utils/MotionExpressionWorkerClient";
 import { abFetch } from "./utils/converters/_common/arrayBufferFetcher";
 import { loadVrm } from "./utils/common/loadVrm";
