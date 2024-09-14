@@ -14,6 +14,13 @@ import {
 } from "./MotionExpressionManager.ts";
 import { MotionConversionWorkerClient } from "./MotionExpressionWorkerClient.ts";
 import { LoopRepeat, LoopOnce } from "three";
+import { merge, Observable } from "rxjs";
+
+export class LoopType {
+  static FastForward = 1001;
+  static Repeat = 2201;
+  static Once = 2200;
+}
 
 export interface ExpressionInput {
   /**
@@ -53,11 +60,13 @@ export interface ExpressionInput {
    */
   motionExpressions?: MotionExpression[];
   /**
+   * 1001: FastForward
+   *
    * 2201: THREE.LoopRepeat
    *
    * 2200: THREE.LoopOnce
    */
-  loopMotion?: typeof LoopRepeat | typeof LoopOnce;
+  loopMotion?: LoopType;
 }
 
 export class ExpressionManager {
@@ -65,6 +74,9 @@ export class ExpressionManager {
   public face: FaceExpressionManager;
   public motion: MotionExpressionManager;
   private _vrmUrl: string;
+  private _expressionStreams: Observable<
+    MotionExpression | FaceExpression | MouthExpression
+  >[] = [];
 
   constructor(
     vrm: VRM,
@@ -82,7 +94,11 @@ export class ExpressionManager {
   }
 
   // Pass the expression arrays to the respective managers
-  express(expressionInput: ExpressionInput) {
+  express(
+    expressionInput: ExpressionInput
+  ): Observable<MotionExpression | FaceExpression | MouthExpression> {
+    this._expressionStreams = [];
+
     if (expressionInput.faceExpressions) {
       this.face.applyExpressions(expressionInput.faceExpressions);
     }
@@ -92,11 +108,14 @@ export class ExpressionManager {
     }
 
     if (expressionInput.motionExpressions) {
-      this.motion.applyExpressions(
+      const motionStream = this.motion.applyExpressions(
         expressionInput.motionExpressions,
         expressionInput.loopMotion
       );
+      this._expressionStreams.push(motionStream);
     }
+
+    return merge(...this._expressionStreams);
   }
 
   // Update function to call processExpressions for all managers

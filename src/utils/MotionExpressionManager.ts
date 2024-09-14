@@ -7,10 +7,13 @@ import * as THREE from "three";
 import { BVHConverter } from "./converters/BVHConverter";
 import { VRMAConverter } from "./converters/VRMAConverter";
 import { MotionConversionWorkerClient } from "./MotionExpressionWorkerClient";
+import { Observable, Subject, Subscriber } from "rxjs";
+import { LoopType } from "./ExpressionManager";
 
-export interface MotionExpression {
+export interface MotionExpression<T = any> {
   clip: THREE.AnimationClip;
   duration?: number;
+  metadata?: T;
 }
 
 export class MotionExpressionManager {
@@ -37,6 +40,25 @@ export class MotionExpressionManager {
     this._vrmaConverter = new VRMAConverter(this._vrm, this._worker);
   }
 
+  async x2motion(
+    type: "fbx" | "bvh" | "vrma",
+    filePath: string,
+    onProgress: (name: string, progress: number) => void = (_1, _2) => {}
+  ): Promise<MotionExpression> {
+    switch (type) {
+      case "fbx":
+        return await this.fbx2motion(filePath, onProgress);
+      case "bvh":
+        return await this.bvh2motion(filePath, onProgress);
+      case "vrma":
+        return await this.vrma2motion(filePath, onProgress);
+      default:
+        throw TypeError(
+          `type '${type}' is not supported. please provide a 'bvh', 'fbx' or 'vrma'`
+        );
+    }
+  }
+
   async fbx2motion(
     filePath: string,
     onProgress: (name: string, progress: number) => void = (_1, _2) => {}
@@ -60,37 +82,51 @@ export class MotionExpressionManager {
 
   applyExpressions(
     expressions: MotionExpression[],
-    loop: THREE.AnimationActionLoopStyles = THREE.LoopOnce
-  ) {
-    if (this._startNextTimer) {
-      clearTimeout(this._startNextTimer);
-    }
-    const expressionCopies = expressions.map((expression) => {
-      return { ...expression, clip: expression.clip.clone() };
-    });
-    if (loop == THREE.LoopRepeat) {
-      const repeatedExpressionCopies: MotionExpression[] = [];
-      for (const eCopy of expressionCopies) {
-        const newECopy = { ...eCopy, clip: eCopy.clip.clone() };
-        repeatedExpressionCopies.push(newECopy);
+    loop: LoopType = THREE.LoopOnce
+  ): Observable<MotionExpression> {
+    return new Observable((observer) => {
+      if (this._startNextTimer) {
+        clearTimeout(this._startNextTimer);
       }
-      expressionCopies.push(...repeatedExpressionCopies);
-    }
-    this._applyExpressions(
-      expressionCopies,
-      loop,
-      0.5,
-      this._currentAnimationClip
-    );
+
+      const expressionCopies = expressions.map((expression) => {
+        return { ...expression, clip: expression.clip.clone() };
+      });
+
+      if (loop == THREE.LoopRepeat) {
+        const repeatedExpressionCopies: MotionExpression[] = [];
+        for (const eCopy of expressionCopies) {
+          const newECopy = { ...eCopy, clip: eCopy.clip.clone() };
+          repeatedExpressionCopies.push(newECopy);
+        }
+        expressionCopies.push(...repeatedExpressionCopies);
+      }
+
+      this._applyExpressions(
+        expressionCopies,
+        loop,
+        0.5,
+        this._currentAnimationClip,
+        observer // Pass observer to emit updates
+      );
+    });
   }
 
   // Apply motion expressions (implementation left blank for now)
   private _applyExpressions(
     expressions: MotionExpression[],
-    loop: THREE.AnimationActionLoopStyles = THREE.LoopOnce,
+    loop: LoopType = THREE.LoopOnce,
     transitionDuration: number = 0.5,
-    previousClip: THREE.AnimationClip | null = null
+    previousClip: THREE.AnimationClip | null = null,
+    observer?: Subscriber<MotionExpression>
   ) {
+    if (loop === LoopType.FastForward) {
+      const lastExpressionCopy = {
+        ...expressions[expressions.length - 1],
+        clip: expressions[expressions.length - 1].clip.clone(),
+      };
+      expressions.push(lastExpressionCopy);
+    }
     const newExpression = expressions.shift();
     if (loop == THREE.LoopRepeat) {
       if (newExpression) {
@@ -98,8 +134,14 @@ export class MotionExpressionManager {
       }
     }
     if (!newExpression) {
+      observer?.complete();
       return;
     }
+
+    if (observer) {
+      observer.next(newExpression);
+    }
+
     this._currentAnimationClip = newExpression.clip;
     const newAction = this._mixer.clipAction(newExpression.clip);
     newAction.loop = THREE.LoopOnce;
@@ -138,7 +180,8 @@ export class MotionExpressionManager {
           expressions,
           loop,
           newTransitionDuration,
-          this._currentAnimationClip
+          this._currentAnimationClip,
+          observer
         );
       },
       newExpressionDuration * 1000 - newTransitionDuration * 1000
