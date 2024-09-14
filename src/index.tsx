@@ -1,7 +1,7 @@
 import React from "react";
 import { Canvas } from "@react-three/fiber";
 import { VRMAvatar } from "./VRMAvatar";
-import VRMManager from "./utils/VRMManager";
+import { VRMManager } from "./utils/VRMManager";
 import { Grid, OrbitControls } from "@react-three/drei";
 import { Vector3 } from "three";
 import * as THREE from "three";
