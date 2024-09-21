@@ -48,15 +48,17 @@ const VRMAvatarComponent: React.FC<VRMAvatarComponentProps> = ({
         initialPosition && vrm.scene.position.copy(initialPosition);
         scene.add(vrm.scene as Group);
       }
-      const vrmManager = new VRMManager(
-        camera,
-        vrm,
-        vrmUrl,
-        motionExpressionWorkerClient
-      );
-      vrmManagerRef.current = vrmManager; // Store VRMManager in ref
+      if (!vrmManagerRef.current) {
+        const vrmManager = new VRMManager(
+          camera,
+          vrm,
+          vrmUrl,
+          motionExpressionWorkerClient
+        );
+        vrmManagerRef.current = vrmManager; // Store VRMManager in ref
+      }
       if (onLoad) {
-        onLoad(vrmManager); // Pass the VRMManager instance to the onLoad callback
+        onLoad(vrmManagerRef.current); // Pass the VRMManager instance to the onLoad callback
       }
     }
   }, [vrm, camera, onLoad]);

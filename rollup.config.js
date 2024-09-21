@@ -28,11 +28,11 @@ export default {
       extensions: [".js", ".jsx", ".ts", ".tsx"], // Handle .tsx files
     }),
     commonjs(),
-    typescript({
-      tsconfig: "./tsconfig.build.json",
-      exclude: ["**/__tests__/**"],
-      extensions: [".js", ".jsx", ".ts", ".tsx"],
-    }),
+    // typescript({
+    //   tsconfig: "./tsconfig.build.json",
+    //   exclude: ["**/__tests__/**"],
+    //   extensions: [".js", ".jsx", ".ts", ".tsx"],
+    // }),
     babel({
       babelHelpers: "bundled",
       exclude: "node_modules/**",

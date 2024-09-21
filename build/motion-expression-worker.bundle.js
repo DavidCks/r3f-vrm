@@ -44129,7 +44129,6 @@ void main() {
   _VRMLookAt$1.EULER_ORDER = "YXZ";
   var VRMLookAt$1 = _VRMLookAt$1;
   new Vector3(0, 0, 1);
-  new Euler(0, 0, 0, "YXZ");
   var RAD2DEG = 180 / Math.PI;
   var _eulerA3 = /* @__PURE__ */ new Euler();
   var VRMLookAtQuaternionProxy = class extends Object3D {
