@@ -58,14 +58,32 @@ You can use FBX, BVH, and VRMA files for animations. The `MotionExpressionManage
 
 #### Example
 
-```tsx
+```jsx
 import React from "react";
 import { VRMAvatar } from "r3f-vrm";
 import { Vector3 } from "three";
+import { useThree } from "@react-three/fiber";
 
 const MyVRMAvatar: React.FC = () => {
+  const managerRef = React.useRef<VRMManager>(null);
+  const {scene, camera} = useThree();
+
+  useFrame((_,delta) => {
+    scene.update(delta);
+  });
+
   return (
-    <VRMAvatar vrmUrl="path_to_vrm.vrm" />
+    <VRMAvatar
+      scene={scene}
+      camera={camera}
+      vrmUrl="path_to_vrm.vrm"
+      onLoad={
+        (manager) => {
+          managerRef.current = manager;
+          manager.focusManager.focus();
+        }
+      }
+    />
   );
 };
 
@@ -76,11 +94,11 @@ export default MyVRMAvatar;
 
 ### VRMManager
 
-`VRMManager` is the central class that manages the VRM model, including its focus, expressions, and position. It is initialized with a `VRM` object and a Three.js `Camera`, and provides methods to control these aspects of the avatar.
+`VRMManager` is the central class that manages the VRM model, including its focus, expressions, and position. It integrates with the `VRM` object and the Three.js `Camera` and `Scene`, and provides methods to control the avatar.
 
 #### Methods
 
-- `update(delta: number)`: Updates the VRM model and its managers.
+- `update(delta: number)`: Updates the VRM model and its managers. Call this method each frame.
 - `focusManager`: Handles camera focus on the avatar.
 - `expressionManager`: Manages facial, mouth, and motion expressions.
 - `positionManager`: Controls the position of the VRM model.
@@ -93,7 +111,7 @@ The `FocusManager` controls the camera's focus on the VRM model's head with smoo
 
 - `focus(focusProps)`: Focuses the camera on the VRM model with optional properties.
 - `unfocus()`: Removes the focus from the VRM model.
-- `update(delta: number)`: Updates the focus each frame.
+- `update(delta: number)`: Updates the focus each frame. The VRMManager handles focus updates in its' update method.
 
 ### ExpressionManager
 
@@ -102,7 +120,7 @@ The `FocusManager` controls the camera's focus on the VRM model's head with smoo
 #### Methods
 
 - `express(expressionInput)`: Applies expressions to the VRM model.
-- `update(delta: number)`: Processes expressions over time.
+- `update(delta: number)`: Processes expressions each frame. The VRMManager handles expression updates in its' update method.
 
 #### Animation Conversion Worker
 
@@ -120,7 +138,7 @@ To use the worker, you need to copy the `motion-expression-worker.bundle.js` fil
 />
 ```
 
-To copy it to the public directory, you should use your build tool (e.g., webpack, parcel) to copy the file to the public directory. For example, in webpack, you can use the `CopyWebpackPlugin`:
+To copy it to the public directory, you should use your build tool (e.g., webpack, parcel, etc.) to copy the file to the public directory. For example, in webpack, you can use the `CopyWebpackPlugin`:
 
 ```js
 const CopyWebpackPlugin = require("copy-webpack-plugin");
