@@ -1,4 +1,5 @@
 export * from "./src/VRMAvatar.tsx";
+export * from "./src/index.tsx";
 export * from "./src/LoadingFallback.tsx";
 export * from "./src/utils/ExpressionManager.ts";
 export * from "./src/utils/FaceExpressionManager.ts";

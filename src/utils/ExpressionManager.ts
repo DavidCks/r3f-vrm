@@ -115,7 +115,9 @@ export class ExpressionManager {
       this._expressionStreams.push(motionStream);
     }
 
-    return merge(...this._expressionStreams);
+    const observable = merge(...this._expressionStreams);
+    observable.subscribe();
+    return observable;
   }
 
   // Update function to call processExpressions for all managers
